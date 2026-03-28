@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commerce Ingestion API</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">C</div>
+  <div>
+    <h1>Commerce Ingestion API</h1>
+    <p>Multi-Tenant Order Management Platform</p>
+  </div>
+</header>
+
+<div class="container">
+  <nav>
+    <button class="active" onclick="switchTab('organizations')">Organizations</button>
+    <button onclick="switchTab('websites')">Websites</button>
+    <button onclick="switchTab('orders')">Orders</button>
+    <button onclick="switchTab('fulfillments')">Fulfillments</button>
+    <button onclick="switchTab('tracking')">Tracking</button>
+  </nav>
+
+  <!-- Organizations -->
+  <div id="tab-organizations" class="tab-panel active">
+    <div class="card">
+      <div class="card-header">
+        <h2>Organizations</h2>
+        <button class="btn btn-outline btn-sm" onclick="listOrganizations()">&#8635; List</button>
+      </div>
+      <div class="card-body">
+        <div id="org-alert"></div>
+        <div id="org-table"><div class="empty-state"><div class="icon">&#127970;</div><p>Click "List" to load organizations</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Create Organization</h2></div>
+      <div class="card-body">
+        <form onsubmit="createOrganization(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" id="org-name" placeholder="Acme Corp" required>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="org-status">
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Organization</button>
+            <span id="org-create-status"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Websites -->
+  <div id="tab-websites" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <h2>Websites</h2>
+        <button class="btn btn-outline btn-sm" onclick="listWebsites()">&#8635; List</button>
+      </div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:12px;max-width:380px;">
+          <label>Organization ID</label>
+          <input type="text" id="ws-org-id" placeholder="org-uuid">
+        </div>
+        <div id="ws-alert"></div>
+        <div id="ws-table"><div class="empty-state"><div class="icon">&#127760;</div><p>Enter an Organization ID and click "List"</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Create Website</h2></div>
+      <div class="card-body">
+        <form onsubmit="createWebsite(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Organization ID</label>
+              <input type="text" id="ws-create-org-id" placeholder="org-uuid" required>
+            </div>
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" id="ws-name" placeholder="Main Store" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Domain</label>
+              <input type="text" id="ws-domain" placeholder="store.example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Platform</label>
+              <select id="ws-platform">
+                <option value="SHOPIFY">Shopify</option>
+                <option value="MAGENTO">Magento</option>
+                <option value="WOOCOMMERCE">WooCommerce</option>
+                <option value="CUSTOM">Custom</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Website</button>
+            <span id="ws-create-status"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders -->
+  <div id="tab-orders" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <h2>Orders</h2>
+        <button class="btn btn-outline btn-sm" onclick="listOrders()">&#8635; List</button>
+      </div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:12px;max-width:380px;">
+          <label>Organization ID</label>
+          <input type="text" id="ord-org-id" placeholder="org-uuid">
+        </div>
+        <div id="ord-alert"></div>
+        <div id="ord-table"><div class="empty-state"><div class="icon">&#128230;</div><p>Enter an Organization ID and click "List"</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Create Order</h2></div>
+      <div class="card-body">
+        <form onsubmit="createOrder(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Organization ID</label>
+              <input type="text" id="ord-create-org-id" placeholder="org-uuid" required>
+            </div>
+            <div class="form-group">
+              <label>Website ID</label>
+              <input type="text" id="ord-website-id" placeholder="website-uuid" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>External Order ID</label>
+              <input type="text" id="ord-external-id" placeholder="EXT-12345" required>
+            </div>
+            <div class="form-group">
+              <label>External Order Number</label>
+              <input type="text" id="ord-external-number" placeholder="ORD-001">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Status</label>
+              <select id="ord-status">
+                <option value="CREATED">Created</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="SHIPPED">Shipped</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Total Amount</label>
+              <input type="number" id="ord-amount" placeholder="99.99" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <input type="text" id="ord-currency" placeholder="USD" maxlength="3" value="USD" required>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Order</button>
+            <span id="ord-create-status"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fulfillments -->
+  <div id="tab-fulfillments" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <h2>Fulfillments</h2>
+        <button class="btn btn-outline btn-sm" onclick="listFulfillments()">&#8635; List</button>
+      </div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:12px;max-width:380px;">
+          <label>Order ID</label>
+          <input type="text" id="ful-order-id" placeholder="order-uuid">
+        </div>
+        <div id="ful-alert"></div>
+        <div id="ful-table"><div class="empty-state"><div class="icon">&#128666;</div><p>Enter an Order ID and click "List"</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Create Fulfillment</h2></div>
+      <div class="card-body">
+        <form onsubmit="createFulfillment(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Order ID</label>
+              <input type="text" id="ful-create-order-id" placeholder="order-uuid" required>
+            </div>
+            <div class="form-group">
+              <label>External Fulfillment ID</label>
+              <input type="text" id="ful-external-id" placeholder="FULF-001" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Carrier</label>
+              <input type="text" id="ful-carrier" placeholder="UPS">
+            </div>
+            <div class="form-group">
+              <label>Service Level</label>
+              <input type="text" id="ful-service-level" placeholder="GROUND">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Status</label>
+              <select id="ful-status">
+                <option value="CREATED">Created</option>
+                <option value="SHIPPED">Shipped</option>
+                <option value="IN_TRANSIT">In Transit</option>
+                <option value="DELIVERED">Delivered</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Fulfillment</button>
+            <span id="ful-create-status"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracking -->
+  <div id="tab-tracking" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <h2>Tracking Events</h2>
+        <button class="btn btn-outline btn-sm" onclick="listTracking()">&#8635; List</button>
+      </div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:12px;max-width:380px;">
+          <label>Fulfillment ID</label>
+          <input type="text" id="trk-fulfillment-id" placeholder="fulfillment-uuid">
+        </div>
+        <div id="trk-alert"></div>
+        <div id="trk-table"><div class="empty-state"><div class="icon">&#128205;</div><p>Enter a Fulfillment ID and click "List"</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Add Tracking Event</h2></div>
+      <div class="card-body">
+        <form onsubmit="createTracking(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fulfillment ID</label>
+              <input type="text" id="trk-create-fulfillment-id" placeholder="fulfillment-uuid" required>
+            </div>
+            <div class="form-group">
+              <label>Tracking Number</label>
+              <input type="text" id="trk-tracking-number" placeholder="1Z999AA10123456784" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Carrier</label>
+              <input type="text" id="trk-carrier" placeholder="UPS">
+            </div>
+            <div class="form-group">
+              <label>Tracking URL</label>
+              <input type="text" id="trk-url" placeholder="https://tracking.ups.com/...">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Status</label>
+              <select id="trk-status">
+                <option value="IN_TRANSIT">In Transit</option>
+                <option value="PICKED_UP">Picked Up</option>
+                <option value="OUT_FOR_DELIVERY">Out for Delivery</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="EXCEPTION">Exception</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:22px;">
+              <input type="checkbox" id="trk-is-primary">
+              <label for="trk-is-primary" style="margin:0;">Primary Tracking</label>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Event</button>
+            <span id="trk-create-status"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Commerce Ingestion API &mdash; Demo UI</span>
+  <div class="health-indicator">
+    <div class="dot" id="health-dot"></div>
+    <span id="health-text">Checking API&hellip;</span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
